@@ -1,5 +1,7 @@
 // Initializing Databases and Keys
-// require("dotenv").config();
+require("dotenv").config();
+const keys = require("./keys.js");
+const spotifyKeys = new Spotify(keys.spotify);
 const Spotify = require("node-spotify-api");
 const axios = require("axios");
 const inquirer = require("inquirer");
@@ -34,48 +36,24 @@ const music = function(searchQuery) {
           console.log("Added to log.");
         }
       );
-      movieTitle = response.data.Title;
-      movieReleaseYear = response.data.Year;
-      movieIMDBrating = response.data.imdbRating;
-      movieRottenTomatoes = response.data.Ratings[2][2];
+      songArtist = response.data.Artist;
+      songName = response.data.Title;
+      songPreviewLink = response.data.Preview;
+      songAlbum = response.data.Album;
 
       console.log(``);
-      console.log(`
-                   ${movieTitle} 
-  \n 
-  RELEASE YEAR:    ${movieReleaseYear} 
-  \n 
-  IMDB RATING:     ${movieIMDBrating} 
-  \n 
-  ROTTEN TOMATOES: ${movieRottenTomatoes} 
-  \n
-  COUNTRY:         ${movieCountry} 
-  \n 
-  LANGUAGE:        ${movieLanguage} 
-  \n 
-  PLOT:            ${moviePlot} 
-  \n 
-  CAST:            ${movieCast}`);
+      console.log(`TITLE:        ${songName}
+ARTIST:       ${songArtist}
+ALBUM:        ${songAlbum}
+SPOTIFY LINK: ${songPreviewLink}`);
       console.log(``);
       console.log(". . . . .");
       fs.appendFile(
         "log.txt",
-        `
-                   ${movieTitle} 
-  \n 
-      RELEASE YEAR:    ${movieReleaseYear} 
-  \n 
-      IMDB RATING:     ${movieIMDBrating} 
-  \n 
-      ROTTEN TOMATOES: ${movieRottenTomatoes} 
-  \n
-      COUNTRY:         ${movieCountry} 
-  \n 
-      LANGUAGE:        ${movieLanguage} 
-  \n 
-      PLOT:            ${moviePlot} 
-  \n 
-      CAST:            ${movieCast}`,
+        `TITLE:        ${songName}
+ARTIST:       ${songArtist}
+ALBUM:        ${songAlbum}
+SPOTIFY LINK: ${songPreviewLink}`,
         err => {
           if (err) throw err;
         }
