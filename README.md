@@ -17,7 +17,7 @@ I use a log file to log results, a key file to pull sensitive keys from my .env 
 
 ## Video of Functioning App:
 
-'working.mov'
+![LIRI Homework](working.mov)
 
 ## Sole developer: trvcytg
 
