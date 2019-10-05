@@ -17,7 +17,7 @@ I use a log file to log results, a key file to pull sensitive keys from my .env 
 
 ## Video of Functioning App:
 
-Include screenshots, gifs or videos of the app functioning
+'working.mov'
 
 ## Sole developer: trvcytg
 
