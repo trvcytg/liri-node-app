@@ -2,26 +2,15 @@
 require("dotenv").config();
 const keys = require("./keys.js");
 const Spotify = require("node-spotify-api");
-const spotify = new Spotify(keys.spotify);
 const axios = require("axios");
 const inquirer = require("inquirer");
 const fs = require("fs");
-const seatgeekSecret =
-  "10859d71f403a90a04ace48fe187e9941b196a6e6838a67078de01f7d9cd058e"; //------- make and environment for this variable
-const seatgeekClientID = "MTg3NTM3OTd8MTU3MDI0MDgxMC4wNQ"; //------- make and environment for this variable
-const omdbKey = "61fab2c7"; //------- make and environment for this variable
-fs.readFile("random.txt", "utf8", function(error, data) {
-  // If the code experiences any errors it will log the error to the console.
-  if (error) {
-    return console.log(error);
-  }
-  console.log(data);
-  var dwis = data.split(",").slice(1);
-});
+// Hidden keys
+const spotify = new Spotify(keys.spotify);
+const seatgeekClientID = keys.seatgeekClientID;
+const omdbKey = keys.omdbKey;
 
 // Function declaration
-const lyricSearch = function(searchQuery) {};
-
 const music = function(searchQuery) {
   spotify
     .search({ type: "track", query: searchQuery })
