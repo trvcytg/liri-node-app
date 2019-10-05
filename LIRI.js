@@ -1,129 +1,287 @@
 // Initializing Databases and Keys
-require("dotenv").config();
+// require("dotenv").config();
 const Spotify = require("node-spotify-api");
 const axios = require("axios");
 const inquirer = require("inquirer");
 const fs = require("fs");
-// const omdbKey = "61fab2c7";   ------- make and environment for this variable
+const seatgeekSecret =
+  "10859d71f403a90a04ace48fe187e9941b196a6e6838a67078de01f7d9cd058e"; //------- make and environment for this variable
+const seatgeekClientID = "MTg3NTM3OTd8MTU3MDI0MDgxMC4wNQ"; //------- make and environment for this variable
+const omdbKey = "61fab2c7"; //------- make and environment for this variable
 
 // Function declaration
-const human = function(searchQuery) {
-  // The following URL can be used to search the TV Maze API for a given show
-  const URL = "http://api.tvmaze.com/search/people?q=" + searchQuery;
+const lyricSearch = function(searchQuery) {};
+
+const music = function(searchQuery) {
+  const URL = `http://www.omdbapi.com/?t=${searchQuery}&apikey=${omdbKey}`;
   console.log(URL);
   axios
     .get(URL)
     .then(function(response) {
       // handle success
-      humanName = response.data[0].person.name;
-      humanGender = response.data[0].person.gender;
-      humanBirthday = response.data[0].person.birthday;
-      humanNationality = response.data[0].person.country.name;
-      humanURL = response.data[0].person.url;
-      // console.log(response.data[0]);
+      console.log(response.data);
       console.log("-------------------");
-      console.log(`NAME: ${humanName}`);
-      console.log(`NAME: ${humanGender}`);
-      console.log(`BIRTHDAY: ${humanBirthday}`);
-      console.log(`NATIONALITY: ${humanNationality}`);
-      console.log(`URL: ${humanURL}`);
+      console.log(response.data.Title);
+      console.log("*******************");
       fs.appendFile(
         "log.txt",
-        `ACTOR/ACTRESS
-* * * * *
-NAME: ${humanName}
-GENDER: ${humanGender}
-BIRTHDAY: ${humanBirthday}
-NATIONALITY: ${humanNationality}
-URL: ${humanURL}
--------------------
-\n`,
+        `
+  * * * * * * * * * * * * * * * * * * * * *
+  Music Search: ${searchQuery}
+  * * * * * * * * * * * * * * * * * * * * * `,
         err => {
           if (err) throw err;
           console.log("Added to log.");
         }
       );
+      movieTitle = response.data.Title;
+      movieReleaseYear = response.data.Year;
+      movieIMDBrating = response.data.imdbRating;
+      movieRottenTomatoes = response.data.Ratings[2][2];
+
+      console.log(``);
+      console.log(`
+                   ${movieTitle} 
+  \n 
+  RELEASE YEAR:    ${movieReleaseYear} 
+  \n 
+  IMDB RATING:     ${movieIMDBrating} 
+  \n 
+  ROTTEN TOMATOES: ${movieRottenTomatoes} 
+  \n
+  COUNTRY:         ${movieCountry} 
+  \n 
+  LANGUAGE:        ${movieLanguage} 
+  \n 
+  PLOT:            ${moviePlot} 
+  \n 
+  CAST:            ${movieCast}`);
+      console.log(``);
+      console.log(". . . . .");
+      fs.appendFile(
+        "log.txt",
+        `
+                   ${movieTitle} 
+  \n 
+      RELEASE YEAR:    ${movieReleaseYear} 
+  \n 
+      IMDB RATING:     ${movieIMDBrating} 
+  \n 
+      ROTTEN TOMATOES: ${movieRottenTomatoes} 
+  \n
+      COUNTRY:         ${movieCountry} 
+  \n 
+      LANGUAGE:        ${movieLanguage} 
+  \n 
+      PLOT:            ${moviePlot} 
+  \n 
+      CAST:            ${movieCast}`,
+        err => {
+          if (err) throw err;
+        }
+      );
+      //   }
     })
     .catch(function(error) {
       // handle error
       console.log(error);
     })
     .finally(function() {
+      console.log("Added to log.");
       console.log("---------------");
       console.log("QUERY COMPLETED");
       console.log("---------------");
     });
 };
-const TV = function(searchQuery) {
-  // The following URL can be used to search the TV Maze API for a given show
-  const URL = "http://api.tvmaze.com/singlesearch/shows?q=" + searchQuery;
-  console.log(URL);
+
+const concerts = function(searchQuery) {
+  const URL = `https://api.seatgeek.com/2/events?performers.slug=${searchQuery.replace(
+    " ",
+    "-"
+  )}&client_id=${seatgeekClientID}`;
   axios
     .get(URL)
     .then(function(response) {
       // handle success
-      showName = response.data.name;
-      showGenre = response.data.genres;
-      showRating = response.data.rating.average;
-      showNetwork = response.data.network.name;
-      showSummary = response.data.summary;
+      fs.appendFile(
+        "log.txt",
+        `
+* * * * * * * * * * * * * * * * * * * * *
+Concert Search: ${searchQuery}
+* * * * * * * * * * * * * * * * * * * * * `,
+        err => {
+          if (err) throw err;
+          //   console.log("Added to log.");
+        }
+      );
+      for (let index = 0; index < response.data.events.length; index++) {
+        const element = response.data.events[index];
+
+        venueName = element.venue.name;
+        venueAddress = element.venue.address;
+        venueLocation = element.venue.extended_address;
+        eventDate = element.datetime_local;
+
+        // console.log(response.data);
+        // console.log("-------------------");
+        console.log(``);
+        console.log(`        RESULT #${index + 1}`);
+        console.log(``);
+        console.log(`NAME OF VENUE: ${venueName}`);
+        console.log(``);
+        console.log(`VENUE ADDRESS: ${venueAddress}`);
+        console.log(`               ${venueLocation}`);
+        console.log(``);
+        console.log(`EVENT DATE:    ${eventDate}`);
+        console.log(``);
+        console.log(". . . . .");
+        fs.appendFile(
+          "log.txt",
+          `
+    NAME OF VENUE: ${venueName}
+    LOCATION OF VENUE: ${venueLocation}
+    EVENT DATE: ${eventDate}
+              \n`,
+          err => {
+            if (err) throw err;
+          }
+        );
+      }
+    })
+    .catch(function(error) {
+      // handle error
+      console.log(error);
+    })
+    .finally(function() {
+      console.log(`\n`);
+      console.log("---------------");
+      console.log("Added to log.");
+      console.log("QUERY COMPLETED");
+      console.log("---------------");
+      console.log(`\n`);
+    });
+};
+
+const movies = function(searchQuery) {
+  const URL = `http://www.omdbapi.com/?t=${searchQuery}&apikey=${omdbKey}`;
+  axios
+    .get(URL)
+    .then(function(response) {
+      // handle success
+      fs.appendFile(
+        "log.txt",
+        `
+* * * * * * * * * * * * * * * * * * * * *
+Movie Search: ${searchQuery}
+* * * * * * * * * * * * * * * * * * * * * `,
+        err => {
+          if (err) throw err;
+        }
+      );
+      //   for (let index = 0; index < response.data.length; index++) {
+      //     const element = response.data[index];
+      //   * Title of the movie.
+      movieTitle = response.data.Title;
+      //   * Year the movie came out.
+      movieReleaseYear = response.data.Year;
+      //   * IMDB Rating of the movie.
+      movieIMDBrating = response.data.imdbRating;
+      //   * Rotten Tomatoes Rating of the movie.
+      movieRottenTomatoes = response.data.Ratings[2][2];
+      //   * Country where the movie was produced.
+      movieCountry = response.data.Country;
+      //   * Language of the movie.
+      movieLanguage = response.data.Language;
+      //   * Plot of the movie.
+      moviePlot = response.data.Plot;
+      //   * Actors in the movie.
+      movieCast = response.data.Actors;
 
       // console.log(response.data);
-      console.log("-------------------");
-      console.log(`NAME: ${showName}`);
-      console.log(`GENRE: ${showGenre}`);
-      console.log(`AVERAGE RATING: ${showRating}`);
-      console.log(`NETWORK NAME: ${showNetwork}`);
-      console.log(`SUMMARY: ${showSummary}`);
+      // console.log("-------------------");
+      console.log(``);
+      console.log(`
+MOVIE TITLE:     ${movieTitle} 
+\n 
+RELEASE YEAR:    ${movieReleaseYear} 
+\n 
+IMDB RATING:     ${movieIMDBrating} 
+\n 
+ROTTEN TOMATOES: ${movieRottenTomatoes} 
+\n
+COUNTRY:         ${movieCountry} 
+\n 
+LANGUAGE:        ${movieLanguage} 
+\n 
+PLOT:            ${moviePlot} 
+\n 
+CAST:            ${movieCast}`);
+      console.log(``);
+      console.log(". . . . .");
       fs.appendFile(
         "log.txt",
-        `TV SHOW
-* * * * *
-NAME: ${showName}
-GENRE: ${showGenre}
-AVERAGE RATING: ${showRating}
-NETWORK NAME: ${showNetwork}
-SUMMARY: ${showSummary}
--------------------
-\n`,
+        `
+                 ${movieTitle} 
+\n 
+    RELEASE YEAR:    ${movieReleaseYear} 
+\n 
+    IMDB RATING:     ${movieIMDBrating} 
+\n 
+    ROTTEN TOMATOES: ${movieRottenTomatoes} 
+\n
+    COUNTRY:         ${movieCountry} 
+\n 
+    LANGUAGE:        ${movieLanguage} 
+\n 
+    PLOT:            ${moviePlot} 
+\n 
+    CAST:            ${movieCast}`,
         err => {
           if (err) throw err;
-          console.log("Added to log.");
         }
       );
+      //   }
     })
     .catch(function(error) {
       // handle error
       console.log(error);
     })
     .finally(function() {
+      console.log(`\n`);
       console.log("---------------");
+      console.log("Added to log.");
       console.log("QUERY COMPLETED");
       console.log("---------------");
+      console.log(`\n`);
     });
 };
+// Run scripts
 inquirer
   .prompt([
     {
       type: "rawlist",
       name: "queryType",
-      message: "Would you like to search a TV Show or an Actor/Actress?",
-      choices: ["TV Show", "Actor/Actress"]
+      message: "What would you like to search??",
+      choices: ["Concerts", "Music", "Movies", "Do What It Says (DWIS)"]
     },
     {
       type: "input",
       name: "searchQuery",
-      message: "What are you looking for?",
-      default: "Chuck"
+      message: "What would you like to search for?",
+      default: "Nothing..."
     }
   ])
   .then(answers => {
     queryType = answers.queryType;
     searchQuery = answers.searchQuery;
     console.log(`${queryType}: ${searchQuery}`);
-    if (queryType === "TV Show") {
-      TV(searchQuery);
-    } else {
-      human(searchQuery);
+    if (queryType === "Concerts") {
+      concerts(searchQuery);
+    } else if (queryType === "Music") {
+      music(searchQuery);
+    } else if (queryType === "Movies") {
+      movies(searchQuery);
+    } else if (queryType === "Wo What It Says (DWIS)") {
+      lyricSearch(searchQuery);
     }
   });
