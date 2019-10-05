@@ -1,8 +1,8 @@
 // Initializing Databases and Keys
 require("dotenv").config();
 const keys = require("./keys.js");
-const spotifyKeys = new Spotify(keys.spotify);
 const Spotify = require("node-spotify-api");
+const spotify = new Spotify(keys.spotify);
 const axios = require("axios");
 const inquirer = require("inquirer");
 const fs = require("fs");
@@ -10,21 +10,23 @@ const seatgeekSecret =
   "10859d71f403a90a04ace48fe187e9941b196a6e6838a67078de01f7d9cd058e"; //------- make and environment for this variable
 const seatgeekClientID = "MTg3NTM3OTd8MTU3MDI0MDgxMC4wNQ"; //------- make and environment for this variable
 const omdbKey = "61fab2c7"; //------- make and environment for this variable
+fs.readFile("random.txt", "utf8", function(error, data) {
+  // If the code experiences any errors it will log the error to the console.
+  if (error) {
+    return console.log(error);
+  }
+  console.log(data);
+  var dwis = data.split(",").slice(1);
+});
 
 // Function declaration
 const lyricSearch = function(searchQuery) {};
 
 const music = function(searchQuery) {
-  const URL = `http://www.omdbapi.com/?t=${searchQuery}&apikey=${omdbKey}`;
-  console.log(URL);
-  axios
-    .get(URL)
+  spotify
+    .search({ type: "track", query: searchQuery })
     .then(function(response) {
       // handle success
-      console.log(response.data);
-      console.log("-------------------");
-      console.log(response.data.Title);
-      console.log("*******************");
       fs.appendFile(
         "log.txt",
         `
@@ -36,29 +38,31 @@ const music = function(searchQuery) {
           console.log("Added to log.");
         }
       );
-      songArtist = response.data.Artist;
-      songName = response.data.Title;
-      songPreviewLink = response.data.Preview;
-      songAlbum = response.data.Album;
-
+      songArtist = response.tracks.items[0].artists[0].name;
+      songName = response.tracks.items[0].name;
+      songPreviewLink = response.tracks.items[0].preview_url;
+      songAlbum = response.tracks.items[0].album.name;
       console.log(``);
-      console.log(`TITLE:        ${songName}
+      console.log(`
+TITLE:        ${songName}
 ARTIST:       ${songArtist}
 ALBUM:        ${songAlbum}
 SPOTIFY LINK: ${songPreviewLink}`);
+
       console.log(``);
       console.log(". . . . .");
+
       fs.appendFile(
         "log.txt",
-        `TITLE:        ${songName}
-ARTIST:       ${songArtist}
-ALBUM:        ${songAlbum}
-SPOTIFY LINK: ${songPreviewLink}`,
+        `
+    TITLE:        ${songName}
+    ARTIST:       ${songArtist}
+    ALBUM:        ${songAlbum}
+    SPOTIFY LINK: ${songPreviewLink}`,
         err => {
           if (err) throw err;
         }
       );
-      //   }
     })
     .catch(function(error) {
       // handle error
@@ -70,6 +74,7 @@ SPOTIFY LINK: ${songPreviewLink}`,
       console.log("QUERY COMPLETED");
       console.log("---------------");
     });
+  // });
 };
 
 const concerts = function(searchQuery) {
@@ -89,7 +94,6 @@ Concert Search: ${searchQuery}
 * * * * * * * * * * * * * * * * * * * * * `,
         err => {
           if (err) throw err;
-          //   console.log("Added to log.");
         }
       );
       for (let index = 0; index < response.data.events.length; index++) {
@@ -100,8 +104,6 @@ Concert Search: ${searchQuery}
         venueLocation = element.venue.extended_address;
         eventDate = element.datetime_local;
 
-        // console.log(response.data);
-        // console.log("-------------------");
         console.log(``);
         console.log(`        RESULT #${index + 1}`);
         console.log(``);
@@ -156,43 +158,24 @@ Movie Search: ${searchQuery}
           if (err) throw err;
         }
       );
-      //   for (let index = 0; index < response.data.length; index++) {
-      //     const element = response.data[index];
-      //   * Title of the movie.
       movieTitle = response.data.Title;
-      //   * Year the movie came out.
       movieReleaseYear = response.data.Year;
-      //   * IMDB Rating of the movie.
       movieIMDBrating = response.data.imdbRating;
-      //   * Rotten Tomatoes Rating of the movie.
       movieRottenTomatoes = response.data.Ratings[2][2];
-      //   * Country where the movie was produced.
       movieCountry = response.data.Country;
-      //   * Language of the movie.
       movieLanguage = response.data.Language;
-      //   * Plot of the movie.
       moviePlot = response.data.Plot;
-      //   * Actors in the movie.
       movieCast = response.data.Actors;
 
-      // console.log(response.data);
-      // console.log("-------------------");
       console.log(``);
       console.log(`
 MOVIE TITLE:     ${movieTitle} 
-\n 
 RELEASE YEAR:    ${movieReleaseYear} 
-\n 
 IMDB RATING:     ${movieIMDBrating} 
-\n 
 ROTTEN TOMATOES: ${movieRottenTomatoes} 
-\n
 COUNTRY:         ${movieCountry} 
-\n 
 LANGUAGE:        ${movieLanguage} 
-\n 
 PLOT:            ${moviePlot} 
-\n 
 CAST:            ${movieCast}`);
       console.log(``);
       console.log(". . . . .");
@@ -200,19 +183,12 @@ CAST:            ${movieCast}`);
         "log.txt",
         `
                  ${movieTitle} 
-\n 
     RELEASE YEAR:    ${movieReleaseYear} 
-\n 
     IMDB RATING:     ${movieIMDBrating} 
-\n 
     ROTTEN TOMATOES: ${movieRottenTomatoes} 
-\n
     COUNTRY:         ${movieCountry} 
-\n 
     LANGUAGE:        ${movieLanguage} 
-\n 
     PLOT:            ${moviePlot} 
-\n 
     CAST:            ${movieCast}`,
         err => {
           if (err) throw err;
@@ -259,7 +235,14 @@ inquirer
       music(searchQuery);
     } else if (queryType === "Movies") {
       movies(searchQuery);
-    } else if (queryType === "Wo What It Says (DWIS)") {
-      lyricSearch(searchQuery);
+    } else if (queryType === "Do What It Says (DWIS)") {
+      fs.readFile("random.txt", "utf8", function(error, data) {
+        // If the code experiences any errors it will log the error to the console.
+        if (error) {
+          return console.log(error);
+        }
+        const dwis = data.split(",").slice(1);
+        music(dwis);
+      });
     }
   });
